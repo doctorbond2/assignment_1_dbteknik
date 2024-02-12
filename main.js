@@ -12,16 +12,28 @@ let movieCollection = await movieModel.collection;
 let startupMessage =
   "\nWelcome to the movies database!\nUse numbers 1-5 to navigate:\n ";
 let navigationMessage =
-  "\n1. View all movies\n2. Add a new movie\n3. Update exisiting movie(see for more options)\n4. Delete an exisiting movie\n5. Exit";
+  "\n1. View all movies\n2. Add a new movie\n3. Update exisiting movie\n4. Delete an exisiting movie\n5. Exit";
 console.log(startupMessage);
 
 const retrieveMovies = async (limit, filter) => {
   try {
     let cursor = await movieCollection.find({}).limit(limit).toArray();
-    console.log(cursor.length);
-    await cursor.forEach((movie) => {
-      console.log(movie);
+    await cursor.forEach((movie, index) => {
+      console.log(index + 1 + ". " + movie.title);
     });
+    let viewDecision = false;
+    while (!viewDecision) {
+      console.log(
+        `Enter the enter index of the movie you wish to view. Enter "menu" to return to navigation.\n`
+      );
+      let viewInput = p("");
+      if (viewInput === "menu") {
+        viewDecision = true;
+      } else if (!isNaN(Number(viewInput))) {
+        console.log(cursor[viewInput - 1]);
+        viewDecision = true;
+      }
+    }
   } catch (err) {
     console.log(err);
   }
@@ -84,7 +96,7 @@ const updateMovie = async () => {
 const updateQuery = async (params, oldQuery) => {
   let updatedObject = { ...oldQuery };
   params.forEach((x) => {
-    let helpMessage = `(CURRENT(${x})): ${oldQuery[x]}\nIf you wish to not change press ENTER without input.`;
+    let helpMessage = `CURRENT(${x}): ${oldQuery[x]}\nIf you wish to not change press ENTER without input.`;
     if (x === "title" || x === "director") {
       console.log(helpMessage);
       let userInput = p(``);
@@ -129,16 +141,18 @@ const updateQuery = async (params, oldQuery) => {
   });
   let finalProductMessage = "";
   for (const x in updatedObject) {
+    const changed = oldQuery[x] === updatedObject[x] ? "" : "(UPDATED)";
     if (x === "_id") {
       continue;
     }
     finalProductMessage =
-      finalProductMessage + `${x}: ${oldQuery[x]} -> ${updatedObject[x]}\n`;
+      finalProductMessage +
+      `${x}: ${oldQuery[x]} -> ${updatedObject[x]}+${changed}\n`;
   }
   let absoluteDecision = false;
   while (!absoluteDecision) {
     console.log(
-      `These are the final changes:\n${finalProductMessage}Update data? (y/n)`
+      `---These below are the final changes---\n${finalProductMessage}Update data? (y/n)`
     );
     let absoluteAnswer = p("");
     if (absoluteAnswer === "y") {
@@ -287,7 +301,7 @@ const windowApp = async () => {
           let cursor = await movieCollection.find({}).toArray();
           let l = cursor.length;
           console.log(
-            `There is a total of ${l} movies to show.\n\nTo see all movies enter "all", otherwise enter a number 1-${String(
+            `\nThere is a total of ${l} movies to show.\nTo see all movies enter "all", otherwise enter a number 1-${String(
               l
             )}\n\nEnter "menu" to go back to navigation.`
           );
