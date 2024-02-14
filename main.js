@@ -1,10 +1,37 @@
 import prompt from "prompt-sync";
 import mongoose, { mongo } from "mongoose";
-import {
-  connectToMongoDatabase,
-  mongo_HOST,
-  movieModel,
-} from "./create-database.js";
+const mongo_HOST = "mongodb://localhost:27017/assignment-1-movies-db";
+const connectToMongoDatabase = async (URI) => {
+  try {
+    const { db } = mongoose.connection;
+    const connect = await mongoose.connect(URI);
+    console.log("connected to " + mongo_HOST);
+  } catch (err) {
+    console.log("no connection to mongodb: ", err);
+  }
+};
+const movieSchema = mongoose.Schema({
+  title: {
+    type: String,
+  },
+  director: {
+    type: String,
+  },
+  releaseYear: {
+    type: Number,
+  },
+  genres: {
+    type: [String],
+  },
+  ratings: {
+    type: [Number],
+  },
+  cast: {
+    type: [String],
+  },
+});
+
+const movieModel = mongoose.model("Movies", movieSchema);
 await connectToMongoDatabase(mongo_HOST);
 const p = prompt();
 let activeProgram = true;

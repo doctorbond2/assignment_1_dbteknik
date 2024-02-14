@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-export const mongo_HOST = "mongodb://localhost:27017/assignment-1-movies-db";
+const mongo_HOST = "mongodb://localhost:27017/assignment-1-movies-db";
 const sampleMovies = [
   {
     title: "Inception",
@@ -178,7 +178,7 @@ const sampleMovies = [
     cast: ["Sam Worthington", "Zoe Saldana", "Sigourney Weaver"],
   },
 ];
-export const connectToMongoDatabase = async (URI) => {
+const connectToMongoDatabase = async (URI) => {
   try {
     const { db } = mongoose.connection;
     const connect = await mongoose.connect(URI);
@@ -209,12 +209,12 @@ const movieSchema = mongoose.Schema({
   },
 });
 
-export const movieModel = mongoose.model("Movies", movieSchema);
+const movieModel = mongoose.model("Movies", movieSchema);
+await connectToMongoDatabase(mongo_HOST);
+const movieCollection = await movieModel.createCollection();
+movieCollection.insertMany(sampleMovies);
+export default movieModel;
+console.log("we ran it");
+// if (import.meta.url === `file://${process.argv[1]}`) {
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await connectToMongoDatabase(mongo_HOST);
-
-  const movieCollection = await movieModel.createCollection();
-
-  movieCollection.insertMany(sampleMovies);
-}
+// }
